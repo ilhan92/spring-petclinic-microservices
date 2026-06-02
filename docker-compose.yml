@@ -81,10 +81,6 @@ services:
   genai-service:
     image: springcommunity/spring-petclinic-genai-service
     container_name: genai-service
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - AZURE_OPENAI_KEY=${AZURE_OPENAI_KEY}
-      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
     deploy:
       resources:
         limits:
@@ -95,8 +91,7 @@ services:
       discovery-server:
         condition: service_healthy
     ports:
-     - 8084:8084
-
+      - "8084:8084"
 
   api-gateway:
     image: springcommunity/spring-petclinic-api-gateway
@@ -113,10 +108,10 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
-      - MANAGEMENT_ENDPOINT_ENV_SHOW_VALUES=NEVER
-      - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=NEVER
+    - SPRING_PROFILES_ACTIVE=docker
+    - "MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health"
+    - MANAGEMENT_ENDPOINT_ENV_SHOW_VALUES=NEVER
+     - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=WHEN_AUTHORIZED
 
   tracing-server:
     image: openzipkin/zipkin
