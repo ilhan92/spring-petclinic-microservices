@@ -111,7 +111,12 @@ services:
       discovery-server:
         condition: service_healthy
     ports:
-     - 8080:8080
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINT_ENV_SHOW_VALUES=NEVER
+      - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=NEVER
 
   tracing-server:
     image: openzipkin/zipkin
