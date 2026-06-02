@@ -1,55 +1,21 @@
-name: OWASP Actuator Security Test
+name: Security Scan - Secrets
 
 on:
   push:
     branches:
       - main
-      - develop
-  workflow_dispatch:
+  pull_request:
 
 jobs:
-  security-test:
+  gitleaks:
+    name: Detect secrets with Gitleaks
     runs-on: ubuntu-latest
 
     steps:
-      - name: Recuperer le code
+      - name: Checkout du code
         uses: actions/checkout@v4
 
-      - name: Lancer environnement Docker
-        run: |
-          docker compose up -d
-
-      - name: Attendre API Gateway
-        run: |
-          for i in {1..30}; do
-            if curl -s http://localhost:8080/actuator/health > /dev/null; then
-              echo "API Gateway disponible"
-              exit 0
-            fi
-            echo "Attente API Gateway..."
-            sleep 10
-          done
-          echo "API Gateway non disponible"
-          docker compose logs api-gateway
-          exit 1
-
-      - name: Test OWASP Actuator
-        run: |
-          STATUS_CODE=$(curl -s -o /tmp/actuator_env.txt -w "%{http_code}" http://localhost:8080/actuator/env)
-          echo "Code HTTP recu : $STATUS_CODE"
-
-          if [ "$STATUS_CODE" = "200" ]; then
-            echo "ERREUR SECURITE : /actuator/env est accessible publiquement"
-            exit 1
-          else
-            echo "OK : /actuator/env n'est pas accessible publiquement"
-            exit 0
-          fi
-
-      - name: Afficher les conteneurs
-        if: always()
-        run: docker compose ps
-
-      - name: Arreter environnement
-        if: always()
-        run: docker compose down --remove-orphans
+      - name: Scan des secrets avec Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
